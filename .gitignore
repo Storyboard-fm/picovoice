@@ -9,3 +9,6 @@ demo/c/cmake-build-debug
 *.ppn
 *.rhn
 *.pv
+
+.swiftpm
+

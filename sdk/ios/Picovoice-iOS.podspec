@@ -21,8 +21,8 @@ Pod::Spec.new do |s|
     s.source = { :git => "https://github.com/Picovoice/picovoice.git", :tag => "Picovoice-iOS-v3.0.1" }
     s.ios.deployment_target = '13.0'
     s.swift_version = '5.0'
-    s.source_files = 'sdk/ios/*.{swift}'
-    s.exclude_files = 'sdk/ios/PicovoiceAppTest/**'
+    s.source_files = 'sdk/ios/Package/Sources/*.{swift}'
+    s.exclude_files = 'sdk/ios/Package/Tests/PicovoiceAppTest/**'
 
     s.dependency 'Porcupine-iOS', '~> 3.0.1'
     s.dependency 'Rhino-iOS', '~> 3.0.1'
