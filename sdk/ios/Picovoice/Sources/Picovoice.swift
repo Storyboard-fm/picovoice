@@ -57,12 +57,12 @@ public class Picovoice {
     /// - Throws: PicovoiceError
     public init(
         accessKey: String,
-        keywordPath: String,
+        keywordPaths: [String],
         onWakeWordDetection: @escaping (() -> Void),
         contextPath: String,
         onInference: @escaping ((Inference) -> Void),
         porcupineModelPath: String? = nil,
-        porcupineSensitivity: Float32 = 0.5,
+        porcupineSensitivities: [Float32] = [0.5],
         rhinoModelPath: String? = nil,
         rhinoSensitivity: Float32 = 0.5,
         endpointDurationSec: Float32 = 1.0,
@@ -74,9 +74,9 @@ public class Picovoice {
         do {
             try porcupine = Porcupine(
                 accessKey: accessKey,
-                keywordPath: keywordPath,
+                keywordPaths: keywordPaths,
                 modelPath: porcupineModelPath,
-                sensitivity: porcupineSensitivity)
+                sensitivities: porcupineSensitivities)
 
             try rhino = Rhino(
                 accessKey: accessKey,
@@ -122,7 +122,7 @@ public class Picovoice {
 
         do {
             if !isWakeWordDetected {
-                isWakeWordDetected = try porcupine.process(pcm: pcm) == 0
+                isWakeWordDetected = try porcupine.process(pcm: pcm) >= 0
                 if isWakeWordDetected {
                     self.onWakeWordDetection()
                 }

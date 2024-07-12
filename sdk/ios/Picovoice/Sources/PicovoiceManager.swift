@@ -57,12 +57,12 @@ public class PicovoiceManager {
     /// - Throws: PicovoiceError if unable to initialize
     public init(
             accessKey: String,
-            keywordPath: String,
+            keywordPaths: [String],
             onWakeWordDetection: @escaping (() -> Void),
             contextPath: String,
             onInference: @escaping ((Inference) -> Void),
             porcupineModelPath: String? = nil,
-            porcupineSensitivity: Float32 = 0.5,
+            porcupineSensitivities: [Float32] = [0.5],
             rhinoModelPath: String? = nil,
             rhinoSensitivity: Float32 = 0.5,
             endpointDurationSec: Float32 = 1.0,
@@ -71,12 +71,12 @@ public class PicovoiceManager {
 
         picovoice = try Picovoice(
                 accessKey: accessKey,
-                keywordPath: keywordPath,
+                keywordPaths: keywordPaths,
                 onWakeWordDetection: onWakeWordDetection,
                 contextPath: contextPath,
                 onInference: onInference,
                 porcupineModelPath: porcupineModelPath,
-                porcupineSensitivity: porcupineSensitivity,
+                porcupineSensitivities: porcupineSensitivities,
                 rhinoModelPath: rhinoModelPath,
                 rhinoSensitivity: rhinoSensitivity,
                 endpointDurationSec: endpointDurationSec,
