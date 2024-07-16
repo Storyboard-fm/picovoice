@@ -11,4 +11,4 @@ demo/c/cmake-build-debug
 *.pv
 
 .swiftpm
-
+xcuserdata/
