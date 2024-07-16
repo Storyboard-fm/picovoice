@@ -58,7 +58,7 @@ public class PicovoiceManager {
     public init(
             accessKey: String,
             keywordPaths: [String],
-            onWakeWordDetection: @escaping (() -> Void),
+            onWakeWordDetection: @escaping ((Int32) -> Void),
             contextPath: String,
             onInference: @escaping ((Inference) -> Void),
             porcupineModelPath: String? = nil,

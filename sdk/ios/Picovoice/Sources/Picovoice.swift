@@ -8,6 +8,7 @@
 //
 
 import AVFoundation
+import os.log
 import Porcupine
 import Rhino
 
@@ -18,7 +19,7 @@ public class Picovoice {
     private var porcupine: Porcupine?
     private var rhino: Rhino?
 
-    private var onWakeWordDetection: (() -> Void)
+    private var onWakeWordDetection: ((Int32) -> Void)
     private var onInference: ((Inference) -> Void)
 
     public static let frameLength = Porcupine.frameLength
@@ -58,7 +59,7 @@ public class Picovoice {
     public init(
         accessKey: String,
         keywordPaths: [String],
-        onWakeWordDetection: @escaping (() -> Void),
+        onWakeWordDetection: @escaping ((Int32) -> Void),
         contextPath: String,
         onInference: @escaping ((Inference) -> Void),
         porcupineModelPath: String? = nil,
@@ -122,9 +123,10 @@ public class Picovoice {
 
         do {
             if !isWakeWordDetected {
-                isWakeWordDetected = try porcupine.process(pcm: pcm) >= 0
+                let processResult = try porcupine.process(pcm: pcm)
+                isWakeWordDetected = processResult >= 0
                 if isWakeWordDetected {
-                    self.onWakeWordDetection()
+                    self.onWakeWordDetection(processResult)
                 }
             } else {
                 if try rhino.process(pcm: pcm) {
