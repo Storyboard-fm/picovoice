@@ -129,6 +129,7 @@ public class PicovoiceManager {
         }
 
         try picovoice.reset()
+        try start()
     }
 
     ///  Starts recording audio from the microphone and Picovoice processing loop.
