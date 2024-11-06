@@ -8,8 +8,8 @@
 //
 
 import ios_voice_processor
-import Rhino
 import Porcupine
+import Rhino
 
 /// High-level iOS binding for Picovoice end-to-end platform. It handles recording audio
 /// from microphone, processes it in real-time using Picovoice, and notifies the
@@ -141,18 +141,36 @@ public class PicovoiceManager {
         }
 
         if !isListening {
+            print("Starting pico back up")
+
+            // First, ensure VoiceProcessor is fully stopped
+            if VoiceProcessor.instance.isRecording {
+                print("Pico VoiceProcessor was still recording, stopping first")
+                try? VoiceProcessor.instance.stop()
+            }
+
+            // Clear all existing listeners
+            VoiceProcessor.instance.clearFrameListeners()
+            VoiceProcessor.instance.clearErrorListeners()
+
+            // Add our listeners fresh
             VoiceProcessor.instance.addErrorListener(errorListener!)
             VoiceProcessor.instance.addFrameListener(frameListener!)
 
             do {
+                print("Attempting to start pico VoiceProcessor")
                 try VoiceProcessor.instance.start(
-                        frameLength: Porcupine.frameLength,
-                        sampleRate: Porcupine.sampleRate
+                    frameLength: Porcupine.frameLength,
+                    sampleRate: Porcupine.sampleRate
                 )
+                print("Successfully started pico VoiceProcessor")
                 isListening = true
             } catch {
+                print("Error starting pico: \(error)")
                 throw PicovoiceError(error.localizedDescription)
             }
+        } else {
+            print("Not starting pico back up; already listening")
         }
     }
 
@@ -165,16 +183,14 @@ public class PicovoiceManager {
         }
 
         if isListening {
-            VoiceProcessor.instance.removeErrorListener(errorListener!)
-            VoiceProcessor.instance.removeFrameListener(frameListener!)
+            print("Stopping pico VoiceProcessor and clearing listeners")
+            VoiceProcessor.instance.clearFrameListeners()
+            VoiceProcessor.instance.clearErrorListeners()
 
-            if VoiceProcessor.instance.numFrameListeners == 0 {
-                do {
-                    try VoiceProcessor.instance.stop()
-                } catch {
-                    throw PicovoiceError(error.localizedDescription)
-                }
+            if VoiceProcessor.instance.isRecording {
+                try VoiceProcessor.instance.stop()
             }
+
             isListening = false
         }
 
