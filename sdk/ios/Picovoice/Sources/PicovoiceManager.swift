@@ -140,37 +140,33 @@ public class PicovoiceManager {
             throw PicovoiceInvalidStateError("Unable to start - resources have been released.")
         }
 
-        if !isListening {
-            print("Starting pico back up")
+        print("Starting pico back up")
 
-            // First, ensure VoiceProcessor is fully stopped
-            if VoiceProcessor.instance.isRecording {
-                print("Pico VoiceProcessor was still recording, stopping first")
-                try? VoiceProcessor.instance.stop()
-            }
+        // First, ensure VoiceProcessor is fully stopped
+        if VoiceProcessor.instance.isRecording {
+            print("Pico VoiceProcessor was still recording, stopping first")
+            try? VoiceProcessor.instance.stop()
+        }
 
-            // Clear all existing listeners
-            VoiceProcessor.instance.clearFrameListeners()
-            VoiceProcessor.instance.clearErrorListeners()
+        // Clear all existing listeners
+        VoiceProcessor.instance.clearFrameListeners()
+        VoiceProcessor.instance.clearErrorListeners()
 
-            // Add our listeners fresh
-            VoiceProcessor.instance.addErrorListener(errorListener!)
-            VoiceProcessor.instance.addFrameListener(frameListener!)
+        // Add our listeners fresh
+        VoiceProcessor.instance.addErrorListener(errorListener!)
+        VoiceProcessor.instance.addFrameListener(frameListener!)
 
-            do {
-                print("Attempting to start pico VoiceProcessor")
-                try VoiceProcessor.instance.start(
-                    frameLength: Porcupine.frameLength,
-                    sampleRate: Porcupine.sampleRate
-                )
-                print("Successfully started pico VoiceProcessor")
-                isListening = true
-            } catch {
-                print("Error starting pico: \(error)")
-                throw PicovoiceError(error.localizedDescription)
-            }
-        } else {
-            print("Not starting pico back up; already listening")
+        do {
+            print("Attempting to start pico VoiceProcessor")
+            try VoiceProcessor.instance.start(
+                frameLength: Porcupine.frameLength,
+                sampleRate: Porcupine.sampleRate
+            )
+            print("Successfully started pico VoiceProcessor")
+            isListening = true
+        } catch {
+            print("Error starting pico: \(error)")
+            throw PicovoiceError(error.localizedDescription)
         }
     }
 
