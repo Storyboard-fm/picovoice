@@ -82,6 +82,8 @@ public class PicovoiceManager {
                 endpointDurationSec: endpointDurationSec,
                 requireEndpoint: requireEndpoint)
 
+                print("Initialized pico with wake word sensitivity: \(porcupineSensitivities)")
+
         self.errorListener = VoiceProcessorErrorListener({ error in
             guard let callback = processErrorCallback else {
                 print("\(error.localizedDescription)")
