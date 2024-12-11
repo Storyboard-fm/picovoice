@@ -126,7 +126,7 @@ public class PicovoiceManager {
     ///
     /// - Throws: PicovoiceError if unable to reset
     public func reset() throws {
-        guard let picovoice = self.picovoice else {
+        guard let picovoice else {
             throw PicovoiceInvalidStateError("Unable to reset - resources have been released.")
         }
 
