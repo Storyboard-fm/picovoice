@@ -18,7 +18,6 @@ import Rhino
 public class PicovoiceManager {
     private var picovoice: Picovoice?
     private var truckNoiseInjector: TruckNoiseInjector?
-    private let audioFileWriter = AudioFileWriter()
 
     private var frameListener: VoiceProcessorFrameListener?
     private var errorListener: VoiceProcessorErrorListener?
@@ -110,13 +109,8 @@ public class PicovoiceManager {
 
             let processedFrame: [Int16]
             if shouldInjectTruckNoise, let injector = self.truckNoiseInjector {
-                print("Injecting truck noise into frame")
                 processedFrame = injector.injectNoise(frame)
-
-                // Write the processed frame to our audio file
-                self.audioFileWriter.appendFrame(processedFrame)
             } else {
-                print("Using raw un-truck-noise-injected audio frame")
                 processedFrame = frame
             }
 
@@ -165,22 +159,6 @@ public class PicovoiceManager {
         }
 
         print("Starting pico back up")
-        if #available(iOS 13.0, *) {
-            Task {
-                try? await Task.sleep(nanoseconds: 10_000_000_000)
-                print("Writing calibration file to calibration-test.caf")
-                do {
-                    let audioFileURL = try audioFileWriter.writeToFile(named: "calibration-test")
-                    let audioPlayer = try AVAudioPlayer(contentsOf: audioFileURL)
-                    print("Playing injected calibration audio file...")
-                    audioPlayer.play()
-                } catch {
-                    print("Error playing injected calibration audio file: \(error)")
-                }
-            }
-        } else {
-            // Fallback on earlier versions
-        }
 
         // First, ensure VoiceProcessor is fully stopped
         if VoiceProcessor.instance.isRecording {
@@ -231,53 +209,5 @@ public class PicovoiceManager {
         }
 
         try picovoice.reset()
-    }
-}
-
-
-public class AudioFileWriter {
-    private var audioFile: AVAudioFile?
-    private let sampleRate: Double = 16000.0 // Picovoice uses 16kHz
-    private var pcmData: [Int16] = []
-
-    public init() {}
-
-    public func appendFrame(_ frame: [Int16]) {
-        pcmData.append(contentsOf: frame)
-    }
-
-    public func writeToFile(named filename: String) throws -> URL {
-        // Convert Int16 samples to float format
-        let floatData = pcmData.map { Float($0) / Float(Int16.max) }
-        print("AudioFileWriter floatData samples: \(floatData.count)")
-
-        // Create audio buffer
-        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
-        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(floatData.count))!
-        buffer.frameLength = AVAudioFrameCount(floatData.count)
-
-        // Copy samples to buffer
-        let audioBuffer = buffer.floatChannelData?[0]
-        for (index, sample) in floatData.enumerated() {
-            audioBuffer?[index] = sample
-        }
-
-        // Get the documents directory
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let outputURL = documentsPath.appendingPathComponent("\(filename).caf")
-
-        // Delete existing file if it exists
-        try? FileManager.default.removeItem(at: outputURL)
-
-        // Create and write to audio file
-        audioFile = try AVAudioFile(forWriting: outputURL, settings: format.settings)
-        try audioFile?.write(from: buffer)
-
-        print("Audio file written to: \(outputURL.path)")
-        return outputURL
-    }
-
-    public func clear() {
-        pcmData.removeAll()
     }
 }
