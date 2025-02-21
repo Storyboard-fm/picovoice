@@ -7,7 +7,7 @@
 
 import Foundation
 
-class RawAudioFileReader {
+struct RawAudioFileReader {
     /// Reads a raw audio file and converts it to [Int16] samples
     /// - Parameter fileName: Name of the raw file in the bundle
     /// - Returns: Array of Int16 samples, or nil if file cannot be read
