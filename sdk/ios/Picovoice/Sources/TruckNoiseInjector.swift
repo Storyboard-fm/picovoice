@@ -21,8 +21,16 @@ class TruckNoiseInjector {
             if truckNoisePosition >= truckNoiseSamples.count {
                 truckNoisePosition = 0
             }
-            // Add the samples, clamping to Int16 bounds to prevent overflow
-            return Int16(max(min(Int(int16Val) + Int(truckNoiseSamples[truckNoisePosition]), Int(Int16.max)), Int(Int16.min)))
+            // Clamp to Int16 bounds to prevent overflow
+            return Int16(
+                max(
+                    min(
+                        Int(int16Val) + Int(truckNoiseSamples[truckNoisePosition]),
+                        Int(Int16.max)
+                    ),
+                    Int(Int16.min)
+                )
+            )
         }
     }
 }
