@@ -88,8 +88,12 @@ public class PicovoiceManager {
         print("Initialized pico with wake word sensitivity: \(porcupineSensitivities)")
 
         if shouldInjectTruckNoise {
+            print("Will try to add truck noise to the pico voice processor")
             if let truckNoiseSamples = RawAudioFileReader.readRawAudioFile(fileName: "truck-noise") {
+                print("Read the truck-noise raw audio file; truckNoiseInjector is ready to go")
                 truckNoiseInjector = TruckNoiseInjector(truckNoiseSamples: truckNoiseSamples)
+            } else {
+                print("Could not read the truck-noise raw audio file; truck noise will not be injected")
             }
         }
 
