@@ -30,6 +30,8 @@ public class PicovoiceManager {
         }
     }
 
+    public var wakeWordSensitivity: Double = 0.3
+
     /// Constructor.
     ///
     /// - Parameters:
@@ -72,6 +74,7 @@ public class PicovoiceManager {
             requireEndpoint: Bool = true,
             processErrorCallback: ((Error) -> Void)? = nil
     ) throws {
+        wakeWordSensitivity = Double(porcupineSensitivities.first ?? 0.5)
         picovoice = try Picovoice(
                 accessKey: accessKey,
                 keywordPaths: keywordPaths,
@@ -145,34 +148,36 @@ public class PicovoiceManager {
     /// return to the wake word detection state before an inference has completed.
     ///
     /// - Throws: PicovoiceError if unable to reset
-    public func reset() throws {
+    public func reset(shouldResetFrameListeners: Bool = true) throws {
         guard let picovoice else {
             throw PicovoiceInvalidStateError("Unable to reset - resources have been released.")
         }
 
         try picovoice.reset()
-        try start()
+        try start(shouldResetFrameListeners: shouldResetFrameListeners)
     }
 
     ///  Starts recording audio from the microphone and Picovoice processing loop.
     ///
     /// - Throws: PicovoiceError if unable to start recording
-    public func start() throws {
+    public func start(shouldResetFrameListeners: Bool = true) throws {
         guard self.picovoice != nil else {
             throw PicovoiceInvalidStateError("Unable to start - resources have been released.")
         }
 
-        print("Starting pico back up")
+        print("Starting pico with sensitivity of \(wakeWordSensitivity); resetting frame listeners? \(shouldResetFrameListeners)")
 
-        // First, ensure VoiceProcessor is fully stopped
-        if VoiceProcessor.instance.isRecording {
-            print("Pico VoiceProcessor was still recording, stopping first")
-            try? VoiceProcessor.instance.stop()
+        if shouldResetFrameListeners {
+            // First, ensure VoiceProcessor is fully stopped
+            if VoiceProcessor.instance.isRecording {
+                print("Pico VoiceProcessor was still recording, stopping first")
+                try? VoiceProcessor.instance.stop()
+            }
+
+            // Clear all existing listeners
+            VoiceProcessor.instance.clearFrameListeners()
+            VoiceProcessor.instance.clearErrorListeners()
         }
-
-        // Clear all existing listeners
-        VoiceProcessor.instance.clearFrameListeners()
-        VoiceProcessor.instance.clearErrorListeners()
 
         // Add our listeners fresh
         VoiceProcessor.instance.addErrorListener(errorListener!)

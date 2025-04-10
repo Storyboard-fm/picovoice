@@ -126,6 +126,7 @@ public class Picovoice {
                 let processResult = try porcupine.process(pcm: pcm)
                 isWakeWordDetected = processResult >= 0
                 if isWakeWordDetected {
+                    print("WWCS ww porcupine heard with sensitivity \(porcupine.wakeWordSensitivity)")
                     self.onWakeWordDetection(processResult)
                 }
             } else {
